@@ -1,0 +1,41 @@
+name: Step 3, Mark as Answer
+
+# This workflow listens for a discussion marked as answered
+# and proceeds from step 3 to step 4.
+
+on:
+  discussion:
+    types:
+      - answered
+
+permissions:
+  contents: write
+
+jobs:
+  get_current_step:
+    name: Check current step number
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - id: get_step
+        run: echo "current_step=$(cat ./.github/steps/-step.txt)" >> $GITHUB_OUTPUT
+    outputs:
+      current_step: ${{ steps.get_step.outputs.current_step }}
+
+  on_mark_as_answer:
+    name: Proceed to Step 4
+    needs: get_current_step
+    if: ${{ needs.get_current_step.outputs.current_step == 3 }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Update to step 4
+        uses: skills/action-update-step@v2
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          from_step: 3
+          to_step: 4
+          branch_name: main

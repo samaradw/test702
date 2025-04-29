@@ -1,0 +1,21 @@
+name: Step 4 - Unpin a Discussion
+
+on:
+  discussion:
+    types:
+      - unpinned
+
+jobs:
+  proceed-to-finish:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Advance to step 5
+        run: echo "Nice! You unpinned a discussion. Moving to the final step."
+
+      - name: Update to finish
+        uses: skills/action-update-step@v2
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          from_step: 4
+          to_step: 5
+          branch_name: main
