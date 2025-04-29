@@ -3,6 +3,7 @@ name: Step 0, Welcome
 # This step triggers after the learner creates a new repository from the template.
 # This workflow updates from step 0 to step 1.
 
+# This will run every time we create push a commit to `main`.
 on:
   workflow_dispatch:
   push:
@@ -11,19 +12,17 @@ on:
 
 permissions:
   contents: write
-  pull-requests: write
 
 jobs:
-  # Get the current step to only run the main job when the learner is on the same step.
   get_current_step:
     name: Check current step number
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout repository
+      - name: Checkout
         uses: actions/checkout@v4
       - id: get_step
         run: |
-          echo "current_step=$(cat .github/steps/-step.txt)" >> $GITHUB_OUTPUT
+          echo "current_step=$(cat ./.github/steps/-step.txt)" >> $GITHUB_OUTPUT
     outputs:
       current_step: ${{ steps.get_step.outputs.current_step }}
 
@@ -31,56 +30,24 @@ jobs:
     name: On start
     needs: get_current_step
 
-    # Only run if:
-    # 1. The repository is not a template repository.
-    # 2. The current step is 0.
+    # Only run when this isn't the template repository and we're on step 0
     if: >-
       ${{ !github.event.repository.is_template
           && needs.get_current_step.outputs.current_step == 0 }}
+
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout repository
+      - name: Checkout
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0 # Get all branches
+          fetch-depth: 0
 
-      # Prepare a branch and make a sample commit
-      - name: Prepare a branch and pull request
-        run: |
-          echo "Ensure we are on step 0"
-          if [ "$(cat .github/steps/-step.txt)" != 0 ]
-          then
-            echo "Current step is not 0"
-            exit 0
-          fi
 
-          echo "Create a new branch"
-          BRANCH=update-game
-          git checkout -b $BRANCH
-
-          echo "Make an example update"
-          echo "<!-- Step 1 has started -->" >> README.md
-
-          echo "Commit the changes"
-          git config user.name github-actions[bot]
-          git config user.email github-actions[bot]@users.noreply.github.com
-          git add README.md
-          git commit --message="Update to Step 1"
-
-          echo "Push the branch"
-          git push --set-upstream origin $BRANCH
-
-          echo "Switch back to main"
-          git checkout main
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-      # In the backend, update the step tracker from 0 ➔ 1
-      - name: Update to Step 1
+      # Update to step 1
+      - name: Update to step 1
         uses: skills/action-update-step@v2
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           from_step: 0
           to_step: 1
-          branch_name: update-game
