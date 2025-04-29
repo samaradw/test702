@@ -14,7 +14,7 @@ In this step, you'll **unpin a Discussion** to reflect updated priorities or rem
 ### 📌 Why this matters
 Unpinning Discussions helps keep your repository organized and focused. It ensures only the most relevant topics remain visible to your community.
 
-### ✅ What to do
+### ⌨️ Activity: Unpin your Discussion
 1. Go to the **Discussions** tab.
 2. Look for a Discussion that has already been pinned (you'll see a 📌 icon).
 3. Scroll to the **bottom of the pinned Discussion**.
